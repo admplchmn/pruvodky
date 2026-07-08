@@ -681,9 +681,6 @@ def create_pruvodka_svarovna_pdf(machine, category, order, date, name):
     from reportlab.lib.units import mm
 
     buffer = BytesIO()
-    c = canvas.Buffer(buffer, pagesize=A5)
-    w, h = A5
-
     operations = CATEGORIES_SVAROVNA.get(category, [])
 
     for operation in operations:
@@ -696,7 +693,7 @@ def create_pruvodka_svarovna_pdf(machine, category, order, date, name):
         y = h - 18 * mm
 
         # Nadpis
-        c.setFont(get_font(False), 13)
+        c.setFont(get_font(True), 13)
         c.drawCentredString(center, y, f"PRŮVODKA - SVAŘ - {operation}")
         y -= 7 * mm
 
@@ -705,25 +702,29 @@ def create_pruvodka_svarovna_pdf(machine, category, order, date, name):
         y -= 10 * mm
 
         # Data
-        c.setFont(get_font(False), 10)
+        c.setFont(get_font(True), 10)
         c.drawString(left + 8 * mm, y, "Stroj:")
         c.setFont(get_font(False), 10)
         c.drawString(left + 62 * mm, y, machine)
         y -= 9 * mm
 
         c.drawString(left + 8 * mm, y, "Kategorie:")
+        c.setFont(get_font(False), 10)
         c.drawString(left + 62 * mm, y, category)
         y -= 9 * mm
 
         c.drawString(left + 8 * mm, y, "Výrobní číslo/kooperace:")
+        c.setFont(get_font(True), 10)
         c.drawString(left + 62 * mm, y, order)
         y -= 9 * mm
 
         c.drawString(left + 8 * mm, y, "Datum:")
+        c.setFont(get_font(True), 10)
         c.drawString(left + 62 * mm, y, date)
         y -= 9 * mm
 
         c.drawString(left + 8 * mm, y, "Vytvořil:")
+        c.setFont(get_font(True), 10)
         c.drawString(left + 62 * mm, y, name)
         y -= 7 * mm
 
