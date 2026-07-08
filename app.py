@@ -50,8 +50,41 @@ def create_app(config_class=Config):
 
     @app.route('/')
     def index():
-        """Hlavní stránka."""
-        return render_template('index.html')
+        """Hlavní stránka s dashboardem."""
+        from models import Document, User, Template
+        from datetime import datetime, timedelta
+
+        if not current_user.is_authenticated:
+            return render_template('index.html', stats=None)
+
+        # Statistiky
+        total_documents = Document.query.count()
+        total_users = User.query.filter_by(is_active=True).count()
+        total_templates = Template.query.count()
+
+        # Dokumenty za posledních 7 dní
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        documents_this_week = Document.query.filter(Document.created_at >= week_ago).count()
+
+        # Dokumenty podle typu
+        doc_types = db.session.query(
+            Document.document_type,
+            db.func.count(Document.id)
+        ).group_by(Document.document_type).all()
+
+        # Poslední dokumenty
+        recent_docs = Document.query.order_by(Document.created_at.desc()).limit(5).all()
+
+        stats = {
+            'total_documents': total_documents,
+            'total_users': total_users,
+            'total_templates': total_templates,
+            'documents_this_week': documents_this_week,
+            'doc_types': dict(doc_types),
+            'recent_docs': recent_docs
+        }
+
+        return render_template('index.html', stats=stats)
 
     # Auth routes
     @app.route('/login', methods=['GET', 'POST'])

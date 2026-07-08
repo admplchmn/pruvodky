@@ -3,51 +3,178 @@
 {% block title %}Domů - Generátor průvodek{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">Vítejte v systému generování průvodek</div>
-
+<div class="dashboard">
     {% if not current_user.is_authenticated %}
-        <p class="mb-1">Pro přístup k funkcím aplikace se prosím přihlaste.</p>
-        <a href="{{ url_for('login') }}" class="btn btn-primary">Přihlásit se</a>
+        <div class="card">
+            <div class="card-header">Vítejte v systému generování průvodek</div>
+            <p class="mb-1">Pro přístup k funkcím aplikace se prosím přihlaste.</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Přihlásit se</a>
+        </div>
     {% else %}
-        <h2 class="mb-1">Přehled dostupných funkcí</h2>
-        <p>Zde si můžete vybrat, co chcete vygenerovat:</p>
+        <!-- Statistiky -->
+        <h2 class="mb-3">Dashboard - Přehled</h2>
 
-        <div class="form-row mt-1">
-            <div class="card" style="box-shadow: none; border: 2px solid #3498db;">
-                <h3>Průvodka Stroje</h3>
-                <p>Generování průvodky pro výrobní stroje (A4 formát)</p>
-                <a href="{{ url_for('pruvodka_stroje') }}" class="btn btn-primary mt-1">Otevřít</a>
+        {% if stats %}
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-value">{{ stats.total_documents }}</div>
+                <div class="stat-label">Celkem dokumentů</div>
             </div>
-
-            <div class="card" style="box-shadow: none; border: 2px solid #27ae60;">
-                <h3>Průvodka Svařovna</h3>
-                <p>Generování průvodky pro svařovnu s kategoriemi (A5 formát)</p>
-                <a href="{{ url_for('pruvodka_svarovna') }}" class="btn btn-success mt-1">Otevřít</a>
+            <div class="stat-card success">
+                <div class="stat-value">{{ stats.documents_this_week }}</div>
+                <div class="stat-label">Tento týden</div>
             </div>
-
-            <div class="card" style="box-shadow: none; border: 2px solid #e67e22;">
-                <h3>Štítky</h3>
-                <p>Generování štítků různých velikostí (A5, A6, custom)</p>
-                <a href="{{ url_for('stitky') }}" class="btn btn-primary mt-1">Otevřít</a>
+            <div class="stat-card info">
+                <div class="stat-value">{{ stats.total_users }}</div>
+                <div class="stat-label">Aktivních uživatelů</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value">{{ stats.total_templates }}</div>
+                <div class="stat-label">Šablon</div>
             </div>
         </div>
 
-        <h3 class="mt-1">Archiv dokumentů</h3>
-        <p>Všechny vygenerované dokumenty jsou uloženy v archivu. Můžete je znovu stáhnout nebo prohlížet.</p>
-        <a href="{{ url_for('archiv') }}" class="btn btn-secondary mt-1">Otevřít archiv</a>
+        <!-- Dokumenty podle typu -->
+        {% if stats.doc_types %}
+        <div class="card mt-3">
+            <div class="card-header">Dokumenty podle typu</div>
+            <div class="card-body">
+                <div class="doc-type-stats">
+                    {% for doc_type, count in stats.doc_types.items() %}
+                    <div class="doc-type-item">
+                        <span class="doc-type-name">{{ doc_type }}</span>
+                        <span class="doc-type-count">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Poslední dokumenty -->
+        <div class="card mt-3">
+            <div class="card-header">Naposledy vytvořené dokumenty</div>
+            <div class="card-body">
+                {% if stats.recent_docs %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Název</th>
+                            <th>Typ</th>
+                            <th>Výrobní číslo</th>
+                            <th>Datum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in stats.recent_docs %}
+                        <tr>
+                            <td><a href="{{ url_for('view_document', doc_id=doc.id) }}">{{ doc.title }}</a></td>
+                            <td><span class="badge badge-secondary">{{ doc.document_type }}</span></td>
+                            <td>{{ doc.production_number or '-' }}</td>
+                            <td>{{ doc.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">Zatím nebyly vytvořeny žádné dokumenty.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Rychlé akce -->
+        <h3 class="mt-4 mb-2">Rychlý přístup</h3>
+        <div class="action-buttons">
+            <a href="{{ url_for('pruvodka_stroje') }}" class="btn btn-lg btn-primary">
+                📄 Průvodka Stroje
+            </a>
+            <a href="{{ url_for('pruvodka_svarovna') }}" class="btn btn-lg btn-success">
+                🔧 Průvodka Svařovna
+            </a>
+            <a href="{{ url_for('stitky') }}" class="btn btn-lg btn-warning">
+                🏷️ Štítky
+            </a>
+            <a href="{{ url_for('archiv') }}" class="btn btn-lg btn-secondary">
+                📚 Archiv
+            </a>
+        </div>
 
         {% if current_user.role in ['admin', 'mistr'] %}
-        <h3 class="mt-1">Správa šablon</h3>
-        <p>Administrátoři a mistři mohou spravovat šablony pro generování dokumentů.</p>
-        <a href="{{ url_for('sablony') }}" class="btn btn-secondary mt-1">Spravovat šablony</a>
+        <div class="mt-3">
+            <a href="{{ url_for('sablony') }}" class="btn btn-info">📋 Správa šablon</a>
+        </div>
         {% endif %}
 
         {% if current_user.role == 'admin' %}
-        <h3 class="mt-1">Administrace</h3>
-        <p>Jako administrátor máte přístup ke správě uživatelů systému.</p>
-        <a href="{{ url_for('admin_users') }}" class="btn btn-danger mt-1">Správa uživatelů</a>
+        <div class="mt-3">
+            <a href="{{ url_for('admin_users') }}" class="btn btn-danger">⚙️ Správa uživatelů</a>
+        </div>
         {% endif %}
     {% endif %}
 </div>
+
+<style>
+.dashboard .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.dashboard .stat-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+}
+
+.dashboard .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.dashboard .stat-card.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+.dashboard .stat-card.info { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); }
+.dashboard .stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+
+.dashboard .stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard .stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.dashboard .doc-type-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard .doc-type-item {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard .doc-type-count {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #495057;
+}
+
+.dashboard .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard .btn-lg {
+    min-width: 180px;
+}
+</style>
 {% endblock %}
