@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Vytvořit šablonu - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px;">
+    <div class="card-header">Vytvořit novou šablonu</div>
+
+    <form method="POST" action="{{ url_for('create_template') }}">
+        <div class="form-group">
+            <label for="name">Název šablony *</label>
+            <input type="text" id="name" name="name" class="form-control" required
+                   placeholder="Např. Standardní průvodka stroje">
+        </div>
+
+        <div class="form-group">
+            <label for="template_type">Typ šablony *</label>
+            <select id="template_type" name="template_type" class="form-control" required>
+                <option value="">-- Vyberte typ --</option>
+                <option value="pruvodka_stroje">Průvodka Stroje</option>
+                <option value="pruvodka_svarovna">Průvodka Svařovna</option>
+                <option value="stitek">Štítek</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="content_json">Parametry šablony (JSON)</label>
+            <textarea id="content_json" name="content_json" class="form-control" rows="10"
+                      placeholder='{"font_size": 12, "margin": 20, ...}'></textarea>
+            <small style="color: #7f8c8d;">Můžete nechat prázdné pro výchozí nastavení.</small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-success">Vytvořit šablonu</button>
+            <a href="{{ url_for('sablony') }}" class="btn btn-secondary">Zpět</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

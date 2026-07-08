@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Správa uživatelů - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Správa uživatelů</div>
+
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('admin_create_user') }}" class="btn btn-success">Vytvořit nového uživatele</a>
+    </div>
+
+    {% if users %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Uživatelské jméno</th>
+                <th>Plné jméno</th>
+                <th>E-mail</th>
+                <th>Rol<span>e</span></th>
+                <th>Aktivní</th>
+                <th>Vytvořen</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td><strong>{{ user.username }}</strong></td>
+                <td>{{ user.full_name or '-' }}</td>
+                <td>{{ user.email or '-' }}</td>
+                <td><span class="badge badge-{{ user.role }}">{{ user.role }}</span></td>
+                <td>{{ 'Ano' if user.is_active else '<span style="color: #e74c3c;">Ne</span>'|safe }}</td>
+                <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-primary btn-sm">Upravit</a>
+                    {% if user.username != 'admin' and user.id != current_user.id %}
+                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display: inline;" onsubmit="return confirm('Opravdu chcete deaktivovat tohoto uživatele?');">
+                        <button type="submit" class="btn btn-danger btn-sm" style="margin-left: 0.5rem;">Deaktivovat</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; padding: 2rem;">
+        Žádní uživatelé v systému.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

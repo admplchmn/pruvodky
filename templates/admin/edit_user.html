@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Upravit uživatele - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">Upravit uživatele: {{ user.username }}</div>
+
+    <form method="POST" action="{{ url_for('admin_edit_user', user_id=user.id) }}">
+        <div class="form-group">
+            <label for="username">Uživatelské jméno</label>
+            <input type="text" id="username" value="{{ user.username }}" class="form-control" disabled>
+            <small style="color: #7f8c8d;">Nelze změnit přihlašovací jméno.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="full_name">Plné jméno</label>
+            <input type="text" id="full_name" name="full_name" class="form-control"
+                   value="{{ user.full_name or '' }}"
+                   placeholder="Jméno a příjmení (pro průvodky)">
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" class="form-control"
+                   value="{{ user.email or '' }}"
+                   placeholder="user@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="role">Rol<span>e</span></label>
+            <select id="role" name="role" class="form-control">
+                <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>Viewer (jen prohlížení)</option>
+                <option value="operátor" {% if user.role == 'operátor' %}selected{% endif %}>Operátor (generování dokumentů)</option>
+                <option value="mistr" {% if user.role == 'mistr' %}selected{% endif %}>Mistr (generování + schvalování)</option>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrátor (plný přístup)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_active" {% if user.is_active %}checked{% endif %}>
+                Uživatel je aktivní
+            </label>
+        </div>
+
+        <hr style="margin: 1.5rem 0;">
+
+        <div class="form-group">
+            <label for="password">Nové heslo (nevyplňujte, pokud neměnit)</label>
+            <input type="password" id="password" name="password" class="form-control" minlength="6"
+                   placeholder="Minimálně 6 znaků">
+            <small style="color: #7f8c8d;">Nechte prázdné pro zachování současného hesla.</small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Uložit změny</button>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Zpět</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

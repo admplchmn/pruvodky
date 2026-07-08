@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Archiv dokumentů - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Archiv dokumentů</div>
+
+    <!-- Filtry -->
+    <form method="GET" action="{{ url_for('archiv') }}" style="margin-bottom: 1.5rem;">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="type">Typ dokumentu</label>
+                <select id="type" name="type" class="form-control">
+                    <option value="">-- Všechny --</option>
+                    <option value="pruvodka_stroje" {% if current_type == 'pruvodka_stroje' %}selected{% endif %}>Průvodka Stroje</option>
+                    <option value="pruvodka_svarovna" {% if current_type == 'pruvodka_svarovna' %}selected{% endif %}>Průvodka Svařovna</option>
+                    <option value="stitek" {% if current_type == 'stitek' %}selected{% endif %}>Štítek</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="production_number">Výrobní číslo</label>
+                <input type="text" id="production_number" name="production_number" class="form-control"
+                       placeholder="Hledat..." value="{{ request.args.get('production_number', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="date_from">Od data</label>
+                <input type="date" id="date_from" name="date_from" class="form-control"
+                       value="{{ request.args.get('date_from', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="date_to">Do data</label>
+                <input type="date" id="date_to" name="date_to" class="form-control"
+                       value="{{ request.args.get('date_to', '') }}">
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button type="submit" class="btn btn-primary">Filtrovat</button>
+                <a href="{{ url_for('archiv') }}" class="btn btn-secondary" style="margin-left: 0.5rem;">Zrušit</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Seznam dokumentů -->
+    {% if documents %}
+    <table>
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Typ</th>
+                <th>Název</th>
+                <th>Výrobní číslo</th>
+                <th>Stroj / Kategorie</th>
+                <th>Vytvořil</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>
+                    {% if doc.document_type == 'pruvodka_stroje' %}
+                        <span class="badge badge-operátor">Průvodka Stroje</span>
+                    {% elif doc.document_type == 'pruvodka_svarovna' %}
+                        <span class="badge badge-mistr">Průvodka Svařovna</span>
+                    {% elif doc.document_type == 'stitek' %}
+                        <span class="badge badge-viewer">Štítek</span>
+                    {% endif %}
+                </td>
+                <td>{{ doc.title }}</td>
+                <td>{{ doc.production_number or '-' }}</td>
+                <td>{{ doc.machine or doc.category or '-' }}</td>
+                <td>{{ doc.creator.full_name or doc.creator.username }}</td>
+                <td>
+                    <a href="{{ url_for('view_document', doc_id=doc.id) }}" class="btn btn-secondary btn-sm" target="_blank">Prohlédnout</a>
+                    <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="btn btn-primary btn-sm" style="margin-left: 0.5rem;">Stáhnout</a>
+                    {% if current_user.is_admin() %}
+                    <form method="POST" action="{{ url_for('delete_document', doc_id=doc.id) }}" style="display: inline;" onsubmit="return confirm('Opravdu chcete smazat tento dokument?');">
+                        <button type="submit" class="btn btn-danger btn-sm" style="margin-left: 0.5rem;">Smazat</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; padding: 2rem;">
+        Žádné dokumenty v archivu.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

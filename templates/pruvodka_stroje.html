@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Průvodka Stroje - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Generování průvodky - Stroje</div>
+
+    <form method="POST" action="{{ url_for('pruvodka_stroje') }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="vyrobni">Výrobní číslo / kooperace *</label>
+                <input type="text" id="vyrobni" name="vyrobni" class="form-control" required
+                       value="{{ request.form.vyrobni if request.form.vyrobni else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="stroj">Stroj *</label>
+                <input type="text" id="stroj" name="stroj" class="form-control" required
+                       placeholder="Pokud kooperace, napište '-'"
+                       value="{{ request.form.stroj if request.form.stroj else '-' }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="datum">Datum *</label>
+                <input type="date" id="datum" name="datum" class="form-control" required
+                       value="{{ request.form.datum if request.form.datum else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="jmeno">Jméno a příjmení *</label>
+                <input type="text" id="jmeno" name="jmeno" class="form-control" required
+                       value="{{ request.form.jmeno if request.form.jmeno else '' }}">
+                <small style="color: #7f8c8d;">Předvyplněno z vašeho profilu</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="operace">Operace *</label>
+            <select id="operace" name="operace" class="form-control" required>
+                <option value="Obrobna" {% if request.form.operace == 'Obrobna' or not request.form %}selected{% endif %}>Obrobna</option>
+                <option value="Svařovna" {% if request.form.operace == 'Svařovna' %}selected{% endif %}>Svařovna</option>
+                <option value="Ohranování" {% if request.form.operace == 'Ohranování' %}selected{% endif %}>Ohranování</option>
+                <option value="Lasery" {% if request.form.operace == 'Lasery' %}selected{% endif %}>Lasery</option>
+                <option value="Lakovna" {% if request.form.operace == 'Lakovna' %}selected{% endif %}>Lakovna</option>
+                <option value="Montáž" {% if request.form.operace == 'Montáž' %}selected{% endif %}>Montáž</option>
+                <option value="Elektromontáž" {% if request.form.operace == 'Elektromontáž' %}selected{% endif %}>Elektromontáž</option>
+                <option value="SW" {% if request.form.operace == 'SW' %}selected{% endif %}>SW</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Vygenerovat PDF</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Zpět</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Nastavení dnešního data jako výchozího
+    document.addEventListener('DOMContentLoaded', function() {
+        const datumInput = document.getElementById('datum');
+        if (!datumInput.value) {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            datumInput.value = `${day}.${month}.${year}`;
+        }
+    });
+</script>
+{% endblock %}

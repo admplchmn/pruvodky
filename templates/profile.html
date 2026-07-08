@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Váš profil</div>
+
+    <table style="max-width: 500px;">
+        <tr>
+            <th>Uživatelské jméno:</th>
+            <td>{{ current_user.username }}</td>
+        </tr>
+        <tr>
+            <th>Plné jméno:</th>
+            <td>{{ current_user.full_name or '-' }}</td>
+        </tr>
+        <tr>
+            <th>E-mail:</th>
+            <td>{{ current_user.email or '-' }}</td>
+        </tr>
+        <tr>
+            <th>Rol<span>e:</span></th>
+            <td><span class="badge badge-{{ current_user.role }}">{{ current_user.role }}</span></td>
+        </tr>
+        <tr>
+            <th>Aktivní:</th>
+            <td>{{ 'Ano' if current_user.is_active else 'Ne' }}</td>
+        </tr>
+        <tr>
+            <th>Vytvořen:</th>
+            <td>{{ current_user.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 2rem;">
+        <a href="{{ url_for('change_password') }}" class="btn btn-primary">Změnit heslo</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Štítky - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Generování štítků</div>
+
+    <form method="POST" action="{{ url_for('stitky') }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nazev">Název štítku *</label>
+                <input type="text" id="nazev" name="nazev" class="form-control" required
+                       placeholder="Např. Štítek stroje, Označení atd."
+                       value="{{ request.form.nazev if request.form.nazev else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="velikost">Velikost štítku *</label>
+                <select id="velikost" name="velikost" class="form-control" required>
+                    <option value="A5" {% if request.form.velikost == 'A5' or not request.form %}selected{% endif %}>A5 (148 x 210 mm)</option>
+                    <option value="A6" {% if request.form.velikost == 'A6' %}selected{% endif %}>A6 (105 x 148 mm)</option>
+                    <option value="custom" {% if request.form.velikost == 'custom' %}selected{% endif %}>Custom (prispůsobit)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="vyrobni">Výrobní číslo *</label>
+                <input type="text" id="vyrobni" name="vyrobni" class="form-control" required
+                       value="{{ request.form.vyrobni if request.form.vyrobni else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="stroj">Stroj</label>
+                <input type="text" id="stroj" name="stroj" class="form-control"
+                       placeholder="Pokud není relevantní, nechte prázdné"
+                       value="{{ request.form.stroj if request.form.stroj else '' }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="datum">Datum</label>
+            <input type="date" id="datum" name="datum" class="form-control"
+                   value="{{ request.form.datum if request.form.datum else '' }}">
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Vygenerovat PDF</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Zpět</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Nastavení dnešního data
+        const datumInput = document.getElementById('datum');
+        if (!datumInput.value) {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            datumInput.value = `${day}.${month}.${year}`;
+        }
+    });
+</script>
+{% endblock %}

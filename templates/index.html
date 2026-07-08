@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Domů - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Vítejte v systému generování průvodek</div>
+
+    {% if not current_user.is_authenticated %}
+        <p class="mb-1">Pro přístup k funkcím aplikace se prosím přihlaste.</p>
+        <a href="{{ url_for('login') }}" class="btn btn-primary">Přihlásit se</a>
+    {% else %}
+        <h2 class="mb-1">Přehled dostupných funkcí</h2>
+        <p>Zde si můžete vybrat, co chcete vygenerovat:</p>
+
+        <div class="form-row mt-1">
+            <div class="card" style="box-shadow: none; border: 2px solid #3498db;">
+                <h3>Průvodka Stroje</h3>
+                <p>Generování průvodky pro výrobní stroje (A4 formát)</p>
+                <a href="{{ url_for('pruvodka_stroje') }}" class="btn btn-primary mt-1">Otevřít</a>
+            </div>
+
+            <div class="card" style="box-shadow: none; border: 2px solid #27ae60;">
+                <h3>Průvodka Svařovna</h3>
+                <p>Generování průvodky pro svařovnu s kategoriemi (A5 formát)</p>
+                <a href="{{ url_for('pruvodka_svarovna') }}" class="btn btn-success mt-1">Otevřít</a>
+            </div>
+
+            <div class="card" style="box-shadow: none; border: 2px solid #e67e22;">
+                <h3>Štítky</h3>
+                <p>Generování štítků různých velikostí (A5, A6, custom)</p>
+                <a href="{{ url_for('stitky') }}" class="btn btn-primary mt-1">Otevřít</a>
+            </div>
+        </div>
+
+        <h3 class="mt-1">Archiv dokumentů</h3>
+        <p>Všechny vygenerované dokumenty jsou uloženy v archivu. Můžete je znovu stáhnout nebo prohlížet.</p>
+        <a href="{{ url_for('archiv') }}" class="btn btn-secondary mt-1">Otevřít archiv</a>
+
+        {% if current_user.role in ['admin', 'mistr'] %}
+        <h3 class="mt-1">Správa šablon</h3>
+        <p>Administrátoři a mistři mohou spravovat šablony pro generování dokumentů.</p>
+        <a href="{{ url_for('sablony') }}" class="btn btn-secondary mt-1">Spravovat šablony</a>
+        {% endif %}
+
+        {% if current_user.role == 'admin' %}
+        <h3 class="mt-1">Administrace</h3>
+        <p>Jako administrátor máte přístup ke správě uživatelů systému.</p>
+        <a href="{{ url_for('admin_users') }}" class="btn btn-danger mt-1">Správa uživatelů</a>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

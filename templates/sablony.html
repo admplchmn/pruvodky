@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Správa šablon - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Správa šablon</div>
+
+    {% if current_user.role in ['admin', 'mistr'] %}
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('create_template') }}" class="btn btn-success">Vytvořit novou šablonu</a>
+    </div>
+    {% endif %}
+
+    {% if templates %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Název</th>
+                <th>Typ</th>
+                <th>Výchozí</th>
+                <th>Vlastník</th>
+                <th>Vytvořen</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tpl in templates %}
+            <tr>
+                <td>{{ tpl.id }}</td>
+                <td><strong>{{ tpl.name }}</strong></td>
+                <td>
+                    {% if tpl.template_type == 'pruvodka_stroje' %}
+                        Průvodka Stroje
+                    {% elif tpl.template_type == 'pruvodka_svarovna' %}
+                        Průvodka Svařovna
+                    {% elif tpl.template_type == 'stitek' %}
+                        Štítek
+                    {% else %}
+                        {{ tpl.template_type }}
+                    {% endif %}
+                </td>
+                <td>{{ 'Ano' if tpl.is_default else 'Ne' }}</td>
+                <td>{{ tpl.owner.full_name or tpl.owner.username if tpl.owner else '-' }}</td>
+                <td>{{ tpl.created_at.strftime('%d.%m.%Y') }}</td>
+                <td>
+                    {% if current_user.role in ['admin', 'mistr'] %}
+                    <a href="{{ url_for('edit_template', tpl_id=tpl.id) }}" class="btn btn-primary btn-sm">Upravit</a>
+                    <form method="POST" action="{{ url_for('delete_template', tpl_id=tpl.id) }}" style="display: inline;" onsubmit="return confirm('Opravdu chcete smazat tuto šablonu?');">
+                        <button type="submit" class="btn btn-danger btn-sm" style="margin-left: 0.5rem;">Smazat</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #7f8c8d; padding: 2rem;">
+        Žádné šablony v systému.
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

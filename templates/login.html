@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Přihlášení - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 450px; margin: 3rem auto;">
+    <div class="card-header text-center">Přihlášení do systému</div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label for="username">Uživatelské jméno</label>
+            <input type="text" id="username" name="username" class="form-control" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Heslo</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="remember"> Zapamatovat mě
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Přihlásit se</button>
+    </form>
+
+    <p class="text-center mt-1" style="font-size: 0.875rem; color: #7f8c8d;">
+        Pokud nemáte účet, kontaktujte administrátora.
+    </p>
+</div>
+{% endblock %}

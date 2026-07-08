@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Vytvořit uživatele - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">Vytvořit nového uživatele</div>
+
+    <form method="POST" action="{{ url_for('admin_create_user') }}">
+        <div class="form-group">
+            <label for="username">Uživatelské jméno *</label>
+            <input type="text" id="username" name="username" class="form-control" required
+                   placeholder="Přihlašovací jméno">
+        </div>
+
+        <div class="form-group">
+            <label for="full_name">Plné jméno</label>
+            <input type="text" id="full_name" name="full_name" class="form-control"
+                   placeholder="Jméno a příjmení (pro průvodky)">
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" class="form-control"
+                   placeholder="user@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="role">Rol<span>e</span> *</label>
+            <select id="role" name="role" class="form-control" required>
+                <option value="viewer">Viewer (jen prohlížení)</option>
+                <option value="operátor" selected>Operátor (generování dokumentů)</option>
+                <option value="mistr">Mistr (generování + schvalování)</option>
+                <option value="admin">Administrátor (plný přístup)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Heslo *</label>
+            <input type="password" id="password" name="password" class="form-control" required minlength="6"
+                   placeholder="Minimálně 6 znaků">
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-success">Vytvořit uživatele</button>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Zpět</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
