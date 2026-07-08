@@ -1,51 +1,88 @@
 # Generátor průvodek a štítků
 
-Webová aplikace pro generování průvodek a štítků v PDF formátu.
+Webová aplikace pro generování průvodek, štítků a správu dokumentů ve výrobním prostředí.
 
 ## Funkcionality
 
-- **Průvodka Stroje** - Generování průvodky pro výrobní stroje (A4 formát)
-- **Průvodka Svařovna** - Generování průvodky pro svařovnu s kategoriemi (A5 formát)
-- **Štítky** - Generování štítků různých velikostí (A5, A6, custom)
-- **Archiv dokumentů** - Ukládání a správa vygenerovaných PDF
-- **Správa šablon** - Možnost vytvářet a upravovat šablony (pro admin/mistr)
-- **Správa uživatelů** - Administrace uživatelů s rolemi (admin)
+- **Generování průvodek** - Pro stroje (A4) a svařovnu (A5)
+- **Generování štítků** - Více velikostí (A5, A6)
+- **Správa šablon** - Ukládání a editace často používaných šablon
+- **Správa uživatelů** - Role-based přístup (admin, mistr, operátor)
+- **Archivace dokumentů** - Historie všech vygenerovaných dokumentů s vyhledáváním
+
+## Rychlý start
+
+### Instalace
+
+```bash
+# Klonujte repozitář
+git clone https://github.com/admplchmn/pruvodky.git
+cd pruvodky
+
+# Vytvořte virtuální prostředí
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# nebo venv\Scripts\activate  # Windows
+
+# Nainstalujte závislosti
+pip install -r requirements.txt
+
+# Spusťte aplikaci
+python run.py
+```
+
+### Přihlášení
+
+Otevřete prohlížeč na `http://localhost:5000`
+
+Výchozí administrátorský účet:
+- **Uživatelské jméno:** `admin`
+- **Heslo:** `admin123`
+
+⚠️ **Důležité:** Změňte heslo po prvním přihlášení!
 
 ## Role uživatelů
 
-| Rol<span>e</span>       | Popis                                              |
-|-------------------------|----------------------------------------------------|
-| **viewer**              | Jen prohlížení archivu                             |
-| **operátor**            | Generování dokumentů                               |
-| **mistr**               | Generování + správa šablon                         |
-| **admin**               | Plný přístup včetně správy uživatelů               |
+| Role       | Popis                                              |
+|------------|----------------------------------------------------|
+| **viewer** | Jen prohlížení archivu                             |
+| **operátor** | Generování dokumentů                             |
+| **mistr**  | Generování + správa šablon                         |
+| **admin**  | Plný přístup včetně správy uživatelů               |
 
-## Instalace
+## Použití
 
-### Požadavky
+### Generování průvodky Stroje
+1. Přihlaste se do aplikace
+2. Klikněte na "Průvodka Stroje"
+3. Vyplňte formulář (výrobní číslo, stroj, datum, jméno, operace)
+4. Klikněte "Vygenerovat PDF"
 
-- Python 3.10+
-- pip (Python package manager)
+### Generování průvodky Svařovna
+1. Přihlaste se do aplikace
+2. Klikněte na "Průvodka Svařovna"
+3. Vyplňte formulář (stroj, kategorie, výrobní číslo, datum, jméno)
+4. Kategorie automaticky určuje seznam operací
+5. Klikněte "Vygenerovat PDF"
 
-### Postup
+### Archivace
+- Všechny vygenerované dokumenty se automaticky ukládají do archivu
+- Archiv je dostupný pro všechny přihlášené uživatele
+- Admini mohou dokumenty mazat
 
-1. Nainstalujte závislosti:
+## Production nasazení
+
+Pro production doporučujeme:
+
+1. **Použít Gunicorn**
    ```bash
-   pip install -r requirements.txt
+   pip install gunicorn
+   gunicorn -w 4 -b 0.0.0.0:8000 "app:create_app()"
    ```
 
-2. Spusťte aplikaci:
-   ```bash
-   python run.py
-   ```
+2. **Změnit SECRET_KEY** v config.py na silné náhodné hodnotu
 
-3. Otevřete prohlížeč na adrese: http://localhost:5000
-
-4. Přihlaste se výchozími údaji:
-   - Uživatel: `admin`
-   - Heslo: `admin123`
-
-5. **DŮLEŽITÉ:** Změňte výchozí heslo po prvním přihlášení!
+3. **Nastavit Nginx** jako reverse proxy (volitelné)
 
 ## Struktura projektu
 
