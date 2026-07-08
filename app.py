@@ -538,6 +538,70 @@ def create_app(config_class=Config):
         flash('Dokument byl smazán.', 'success')
         return redirect(url_for('archiv'))
 
+    @app.route('/archiv/export', methods=['GET', 'POST'])
+    @login_required
+    def export_documents():
+        """Hromadný export dokumentů do ZIP."""
+        from models import Document
+        import zipfile
+        from io import BytesIO
+        from datetime import datetime
+
+        if request.method == 'POST':
+            # Získat vybrané dokumenty nebo všechny
+            selected_ids = request.form.getlist('document_ids')
+            document_type = request.form.get('type', '')
+
+            query = Document.query
+            if document_type:
+                query = query.filter_by(document_type=document_type)
+            if selected_ids:
+                query = query.filter(Document.id.in_([int(i) for i in selected_ids]))
+
+            documents = query.order_by(Document.created_at.desc()).all()
+
+            if not documents:
+                flash('Žádné dokumenty k exportu.', 'warning')
+                return redirect(url_for('archiv'))
+
+            # Vytvořit ZIP
+            zip_buffer = BytesIO()
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for doc in documents:
+                    if doc.pdf_data:
+                        filename = f"{doc.title.replace(' ', '_')}.pdf"
+                        zip_file.writestr(filename, doc.pdf_data)
+
+                # Přidat seznam dokumentů
+                manifest = "ID;Title;Type;Production Number;Created At\n"
+                for doc in documents:
+                    manifest += f"{doc.id};{doc.title};{doc.document_type};{doc.production_number or ''};{doc.created_at}\n"
+                zip_file.writestr("manifest.csv", manifest)
+
+            zip_buffer.seek(0)
+
+            from flask import Response
+            return Response(
+                zip_buffer.getvalue(),
+                mimetype='application/zip',
+                headers={
+                    'Content-Disposition': f'attachment; filename="pruvodky_export_{timestamp}.zip"'
+                }
+            )
+
+        # GET - zobrazit formulář pro výběr
+        from models import Document
+        document_types = db.session.query(Document.document_type).distinct().all()
+        documents = Document.query.order_by(Document.created_at.desc()).limit(100).all()
+
+        return render_template(
+            'export_documents.html',
+            documents=documents,
+            document_types=[dt[0] for dt in document_types]
+        )
+
     # Správa šablon
     @app.route('/sablony')
     @login_required

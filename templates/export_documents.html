@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Export dokumentů - Generátor průvodek{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="mb-0">Hromadný export dokumentů</h3>
+    </div>
+    <div class="card-body">
+        <p>Zvolte typ dokumentů k exportu a stáhněte je jako ZIP archiv.</p>
+
+        <form method="POST" action="{{ url_for('export_documents') }}">
+            <div class="form-group">
+                <label for="type">Typ dokumentů:</label>
+                <select name="type" id="type" class="form-control">
+                    <option value="">Všechny typy</option>
+                    {% for doc_type in document_types %}
+                    <option value="{{ doc_type }}">{{ doc_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <strong>Informace:</strong> Export bude obsahovat všechny PDF dokumenty vybraného typu
+                plus CSV soubor s manifestem (seznamem) všech dokumentů.
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    📦 Vygenerovat ZIP archiv
+                </button>
+                <a href="{{ url_for('archiv') }}" class="btn btn-secondary">
+                    Zpět na archiv
+                </a>
+            </div>
+        </form>
+
+        {% if documents %}
+        <hr>
+        <h4 class="mt-4">Náhled dokumentů (posledních 100)</h4>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Název</th>
+                    <th>Typ</th>
+                    <th>Výrobní číslo</th>
+                    <th>Datum vytvoření</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.title }}</td>
+                    <td><span class="badge badge-secondary">{{ doc.document_type }}</span></td>
+                    <td>{{ doc.production_number or '-' }}</td>
+                    <td>{{ doc.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
